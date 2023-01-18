@@ -10,6 +10,8 @@ resource "aws_instance" "instance" {
   key_name      = "yh"
   # user_data = file("user_data.sh")
 
+  iam_instance_profile = aws_iam_instance_profile.yh-profile.name
+  
   tags = {
     Name = "${var.vpc_name}-instance"
   }
@@ -83,4 +85,55 @@ resource "aws_security_group" "sg" {
     ipv6_cidr_blocks = ["::/0"]
   }
 }
+
+// ###########################################
+#Create an IAM Policy
+resource "aws_iam_policy" "yh-policy" {
+  name        = "yh-Policy"
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        }
+    ]
+  })
+}
+
+#Create an IAM Role
+resource "aws_iam_role" "yh-role" {
+  name = "yh_role"
+
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Principal": {
+                "Service": [
+                    "ec2.amazonaws.com"
+                ]
+            }
+        }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "yh-attach" {
+  name       = "yh-attachment"
+  roles      = [aws_iam_role.yh-role.name]
+  policy_arn = aws_iam_policy.yh-policy.arn
+}
+
+resource "aws_iam_instance_profile" "yh-profile" {
+  name = "yh_profile"
+  role = aws_iam_role.yh-role.name
+}
+
 
