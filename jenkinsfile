@@ -52,11 +52,14 @@ pipeline {
         stage('E2E'){
             // when { expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/} }
             steps{
-                sh "terraform init"
-                sh "terraform apply"
-                env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
-                sh "bash e2e.sh $IP"
-                sh "terraform destroy"
+                script{
+                    sh "terraform init"
+                    sh "terraform apply"
+                    env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
+                    sh "bash e2e.sh $IP"
+                    sh "terraform destroy"
+                }
+                
             }
         }
 
