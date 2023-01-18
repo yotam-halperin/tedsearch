@@ -54,11 +54,14 @@ pipeline {
             // when { expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/} }
             steps{
                 script{
+                    withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
                     sh "terraform init"
                     sh "terraform apply"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
                     sh "bash e2e.sh $IP"
                     sh "terraform destroy"
+                    }
+                    
                 }
                 
             }
