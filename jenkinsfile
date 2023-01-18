@@ -1,0 +1,77 @@
+
+
+pipeline {
+    agent any
+    
+    tools {
+        maven 'mvn'
+        jdk 'java'
+    }
+
+    stages {
+
+        // clone the git repository
+        stage('clone'){
+            steps {
+                deleteDir()
+                checkout scm
+            }
+        }
+
+
+        stage('Build && Unit Test'){
+            steps{
+                withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
+                    sh "mvn verify"
+                }
+                // withMaven(maven: 'mvn', mavenSettingsConfig: 'artifactory') {
+                //     sh 'mvn -f app/pom.xml verify'
+                // }
+            }
+        }
+
+        // give the image the name of the ECR repo in AWS
+        stage('Tag iamge'){
+            steps{
+                sh "docker tag embedash:1.1-SNAPSHOT yotamh_repo:latest"
+            }
+        }
+
+
+        stage('Publish ECR') {
+            steps {
+                script{
+                    docker.withRegistry('https://644435390668.dkr.ecr.eu-west-2.amazonaws.com', 'ecr:eu-west-2:644435390668') {
+                        docker.image("yotamh_repo:latest").push()
+                    }
+                }
+            }
+	    }
+
+        
+        stage('E2E'){
+            when { expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/} }
+            steps{
+                sh "echo e2e"
+            }
+        }
+
+
+        
+        // stage('Deploy'){
+
+        //     when { anyOf { 
+        //         branch 'master';
+        //         expression { env.BRANCH_NAME =~ /^release\/.*/ };
+        //     } }
+
+        //     steps{
+        //         // push to artifactory
+        //         withMaven(maven: 'mvn', mavenSettingsConfig: 'artifactory') {
+        //             sh 'mvn deploy -DskipTests'        
+        //         }
+        //     }
+        // }
+
+    }
+}
