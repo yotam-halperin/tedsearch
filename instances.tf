@@ -15,6 +15,10 @@ resource "aws_instance" "instance" {
   }
 }
 
+output "publicip" {
+  value = aws_instance.instance.public_ip
+}
+
 resource "null_resource" "copy_execute" {
   
     connection {
