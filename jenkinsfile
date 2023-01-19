@@ -6,7 +6,6 @@ pipeline {
     tools {
         maven 'mvn'
         jdk 'java'
-        terraform 'tf'
     }
 
     stages {
