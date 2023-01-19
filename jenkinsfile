@@ -58,6 +58,7 @@ pipeline {
                     sh "terraform init"
                     sh "terraform apply -auto-approve"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
+                    sleep 120
                     sh "bash e2e.sh $IP"
                     sh "terraform destroy -auto-approve"
                     }

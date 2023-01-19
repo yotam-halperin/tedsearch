@@ -27,8 +27,8 @@ variable "subnet_azs" {
 
 variable "instance_ami" {
   type    = string
-  default = "ami-0039da1f3917fa8e3"
-  # default = "ami-01b8d743224353ffe"
+  default = "ami-0039da1f3917fa8e3" # eu-central-1
+  # default = "ami-01b8d743224353ffe" # eu-west-2
 }
 
 variable "instance_type" {
