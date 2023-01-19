@@ -6,7 +6,7 @@ pipeline {
     tools {
         maven 'mvn'
         jdk 'java'
-        // terraform 'tf'
+        terraform 'tf'
     }
 
     stages {
@@ -20,44 +20,42 @@ pipeline {
         }
 
 
-        // stage('Build && Unit Test'){
-        //     steps{
-        //         // withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
-        //         sh "mvn verify"
-        //     }
-        // }
+        stage('Build && Unit Test'){
+            steps{
+                // withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
+                sh "mvn verify"
+            }
+        }
 
-        // // give the image the name of the ECR repo in AWS
-        // stage('Tag iamge'){
-        //     steps{
-        //         sh "docker tag embedash:1.1-SNAPSHOT yotamh_repo:latest"
-        //     }
-        // }
+        // give the image the name of the ECR repo in AWS
+        stage('Tag iamge'){
+            steps{
+                sh "docker tag embedash:1.1-SNAPSHOT yotamh_repo:latest"
+            }
+        }
 
 
-        // stage('Publish ECR') {
-        //     steps {
-        //         script{
-        //             docker.withRegistry('https://644435390668.dkr.ecr.eu-west-2.amazonaws.com', 'ecr:eu-west-2:644435390668') {
-        //                 docker.image("yotamh_repo:latest").push()
-        //             }
-        //         }
-        //     }
-	    // }
+        stage('Publish ECR') {
+            steps {
+                script{
+                    docker.withRegistry('https://644435390668.dkr.ecr.eu-west-2.amazonaws.com', 'ecr:eu-west-2:644435390668') {
+                        docker.image("yotamh_repo:latest").push()
+                    }
+                }
+            }
+	    }
 
         
         stage('E2E'){
             // when { expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/} }
             steps{
                 script{
-                    // withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
                     sh "terraform init"
                     sh "terraform apply -auto-approve -no-color"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
                     sleep 120
                     sh "bash e2e.sh $IP"
                     sh "terraform destroy -auto-approve -no-color"
-                    // }
                     
                 }
                 
