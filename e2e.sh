@@ -15,4 +15,3 @@ else
     echo "test failed"
     exit 1
 fi
-# curl -X GET "http://$IP:80/"

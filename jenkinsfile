@@ -47,36 +47,33 @@ pipeline {
 
         
         stage('E2E'){
-            // when { expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/} }
+            when { anyOf{
+                branch 'master';
+                expression { sh(returnStdout: true, script: 'git log -1 --oneline').trim() =~ /.*#test.*/};
+            } }
             steps{
                 script{
                     sh "terraform init"
-                    sh "terraform apply -auto-approve -no-color"
+                    sh "terraform destroy -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
+                    sh "terraform apply -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
                     sh "bash e2e.sh $IP"
-                    sh "terraform destroy -auto-approve -no-color"
-                    
+                    sh "terraform destroy -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
                 }
-                
             }
         }
 
-
         
-        // stage('Deploy'){
-
-        //     when { anyOf { 
-        //         branch 'master';
-        //         expression { env.BRANCH_NAME =~ /^release\/.*/ };
-        //     } }
-
-        //     steps{
-        //         // push to artifactory
-        //         withMaven(maven: 'mvn', mavenSettingsConfig: 'artifactory') {
-        //             sh 'mvn deploy -DskipTests'        
-        //         }
-        //     }
-        // }
+        stage('Deploy'){
+            when { branch 'master' }
+            steps{
+                script{
+                    sh "terraform init"
+                    sh "terraform destroy -auto-approve -var-file='enviroments/prod.tfvars' -no-color"
+                    sh "terraform apply -auto-approve -var-file='enviroments/prod.tfvars' -no-color"
+                }
+            }
+        }
 
     }
 }
