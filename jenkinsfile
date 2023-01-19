@@ -52,11 +52,11 @@ pipeline {
                 script{
                     withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
                     sh "terraform init"
-                    sh "terraform apply -auto-approve"
+                    sh "terraform apply -auto-approve -no-color"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
                     sleep 120
                     sh "bash e2e.sh $IP"
-                    sh "terraform destroy -auto-approve"
+                    sh "terraform destroy -auto-approve -no-color"
                     }
                     
                 }
