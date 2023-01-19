@@ -21,12 +21,8 @@ pipeline {
 
         stage('Build && Unit Test'){
             steps{
-                withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
-                    sh "mvn verify"
-                }
-                // withMaven(maven: 'mvn', mavenSettingsConfig: 'artifactory') {
-                //     sh 'mvn -f app/pom.xml verify'
-                // }
+                // withCredentials([[ $class:"AmazonWebServicesCredentialsBinding", credentialsId: "644435390668", accessKeyVariable:"AWS_ACCESS_KEY_ID", secretKeyVariable:"AWS_SECRET_ACCESS_KEY"]]){
+                sh "mvn verify"
             }
         }
 
