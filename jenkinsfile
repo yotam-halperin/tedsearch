@@ -54,11 +54,12 @@ pipeline {
             steps{
                 script{
                     sh "terraform init"
-                    sh "terraform destroy -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
-                    sh "terraform apply -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
+                    sh "terraform workspace select E2E || terraform workspace new E2E"
+                    sh "terraform destroy -auto-approve -no-color"
+                    sh "terraform apply -auto-approve -no-color"
                     env.IP = sh(returnStdout: true, script: 'terraform output publicip').trim()
                     sh "bash e2e.sh $IP"
-                    sh "terraform destroy -auto-approve -var-file='enviroments/e2e.tfvars' -no-color"
+                    sh "terraform destroy -auto-approve -no-color"
                 }
             }
         }
@@ -69,8 +70,9 @@ pipeline {
             steps{
                 script{
                     sh "terraform init"
-                    sh "terraform destroy -auto-approve -var-file='enviroments/prod.tfvars' -no-color"
-                    sh "terraform apply -auto-approve -var-file='enviroments/prod.tfvars' -no-color"
+                    sh "terraform workspace select PROD || terraform workspace new PROD"
+                    sh "terraform destroy -auto-approve -no-color"
+                    sh "terraform apply -auto-approve -no-color"
                 }
             }
         }
