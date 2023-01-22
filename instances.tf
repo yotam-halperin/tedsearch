@@ -1,20 +1,24 @@
 // create instances
 resource "aws_instance" "instance" {
-  ami           = var.instance_ami
-  instance_type = var.instance_type
+  ami           = lookup(var.instance_ami, terraform.workspace)
+  instance_type = lookup(var.instance_type, terraform.workspace)
 
   vpc_security_group_ids = [aws_security_group.sg.id]
   subnet_id              = aws_subnet.my_subnet.id
 
   associate_public_ip_address = true
   key_name      = "yh"
-  # user_data = file("user_data.sh")
 
   iam_instance_profile = aws_iam_instance_profile.yh-profile.name
   
   tags = {
-    Name = "${var.vpc_name}-instance"
+    Name = "${lookup(var.vpc_name, terraform.workspace)}-instance"
   }
+
+  # provisioner "local-exec" {
+  #   command = "aws ec2 terminate-instances --instance-ids ${aws_instance.example.*.id[count.index]}"
+  #   when = "timestamp() - aws_instance.example[count.index].launch_time > 900"
+  # }
 }
 
 output "publicip" {
@@ -29,10 +33,7 @@ resource "null_resource" "copy_execute" {
       user = "ubuntu"
       private_key = file("yh.pem")
     }
-    # provisioner "file" {
-    #   source      = "app"
-    #   destination = "app"
-    # }
+
     provisioner "file" {
       source      = "user_data.sh"
       destination = "user_data.sh"
@@ -61,7 +62,7 @@ resource "null_resource" "copy_execute" {
 
 // create the security group for the instances
 resource "aws_security_group" "sg" {
-  name   = "${var.vpc_name}-sg-instance"
+  name   = "${lookup(var.vpc_name, terraform.workspace)}-sg-instance"
   vpc_id = aws_vpc.yh-tf.id
 
   ingress {

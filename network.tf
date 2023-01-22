@@ -1,10 +1,10 @@
 
 // VPC 
 resource "aws_vpc" "yh-tf" {
-  cidr_block = var.vpc_cidr
+  cidr_block = lookup(var.vpc_cidr, terraform.workspace)
 
   tags = {
-    Name = "${var.vpc_name}"
+    Name = "${lookup(var.vpc_name, terraform.workspace)}"
   }
 }
 
@@ -12,11 +12,11 @@ resource "aws_vpc" "yh-tf" {
 resource "aws_subnet" "my_subnet" {
 
   vpc_id            = aws_vpc.yh-tf.id
-  cidr_block        = var.subnet_cidr
-  availability_zone = var.subnet_azs
+  cidr_block        = lookup(var.subnet_cidr, terraform.workspace)
+  availability_zone = lookup(var.subnet_azs, terraform.workspace)
 
   tags = {
-    Name = "${var.vpc_name}-sub"
+    Name = "${lookup(var.vpc_name, terraform.workspace)}-sub"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_internet_gateway" "vpc-igw" {
   vpc_id = aws_vpc.yh-tf.id
 
   tags = {
-    Name = "${var.vpc_name}-igw"
+    Name = "${lookup(var.vpc_name, terraform.workspace)}-igw"
   }
 }
 
