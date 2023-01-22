@@ -1,7 +1,7 @@
 // create instances
 resource "aws_instance" "instance" {
-  ami           = lookup(var.instance_ami, terraform.workspace)
-  instance_type = lookup(var.instance_type, terraform.workspace)
+  ami           = var.instance_ami
+  instance_type = var.instance_type
 
   vpc_security_group_ids = [aws_security_group.sg.id]
   subnet_id              = aws_subnet.my_subnet.id

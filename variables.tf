@@ -15,13 +15,8 @@ variable "vpc_name" {
 
 
 variable "instance_type" {
-  type        = map
-  default     = {
-    "default" = "t3a.micro",
-    "DEV" = "t3a.micro",
-    "PROD" = "t3a.micro",
-    "E2E" = "t3a.micro"
-  }
+  type        = string
+  default     = "t3a.micro"
 }
 
 variable "vpc_cidr" {
