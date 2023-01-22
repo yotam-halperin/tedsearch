@@ -90,7 +90,7 @@ resource "aws_security_group" "sg" {
 // ###########################################
 #Create an IAM Policy
 resource "aws_iam_policy" "yh-policy" {
-  name        = "yh-Policy"
+  name        = "${lookup(var.vpc_name, terraform.workspace)}-Policy"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -106,7 +106,7 @@ resource "aws_iam_policy" "yh-policy" {
 
 #Create an IAM Role
 resource "aws_iam_role" "yh-role" {
-  name = "yh_role"
+  name = "${lookup(var.vpc_name, terraform.workspace)}_role"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -127,13 +127,13 @@ resource "aws_iam_role" "yh-role" {
 }
 
 resource "aws_iam_policy_attachment" "yh-attach" {
-  name       = "yh-attachment"
+  name       = "${lookup(var.vpc_name, terraform.workspace)}-attachment"
   roles      = [aws_iam_role.yh-role.name]
   policy_arn = aws_iam_policy.yh-policy.arn
 }
 
 resource "aws_iam_instance_profile" "yh-profile" {
-  name = "yh_profile"
+  name = "${lookup(var.vpc_name, terraform.workspace)}_profile"
   role = aws_iam_role.yh-role.name
 }
 
