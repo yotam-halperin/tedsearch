@@ -15,7 +15,12 @@ pipeline {
             }
         }
 
-// km
+        stage('terraform init'){
+            steps{
+                sh "terraform init"
+            }
+        }
+        
         stage('check envs'){
             steps{
                 script{
